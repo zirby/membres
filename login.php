@@ -1,31 +1,22 @@
 
 <?php 
 require 'inc/bootstrap.php';
-require 'inc/function.php';
-
-
-session_start();
-reconnect_cookie();
-if(!empty($_POST) && !empty($_POST['email']) && !empty($_POST['password'])){
-    require 'inc/db.php';
-    $req = $pdo->prepare("SELECT * FROM zed_users WHERE email = ?");
-    $req->execute([$_POST['email']]);
-    $user = $req->fetch();
-    if($user && password_verify($_POST['password'], $user->password)){
-        $_SESSION['auth'] = $user;
-        $_SESSION['flash']['success']="Vous êtes bien connecté";
-        if($_POST['remember']){
-            $remember_token = str_random(250);
-            $req = $pdo->prepare("UPDATE zed_users SET remember_token = ? WHERE id = ?");
-            $req->execute([$remember_token, $user->id]);
-            setcookie('remember', $user->id . '==' . $remember_token . sha1($user->id . 'totoestgrand'), time() + 60 * 60* 24*7);
-        }
-        header('Location: account.php');
-        exit();
-    }else{
-        $_SESSION['flash']['danger']="Email ou mot de passe incorrect";
-    }
+$db = App::getDatabase();
+$auth = App::getAuth();
+$auth->connectFromCookie($db);
+if($auth->user()){
+    App::redirect ('account.php');
 }
+
+ if(!empty($_POST) && !empty($_POST['email']) && !empty($_POST['password'])){
+     $user = $auth->login($db, $_POST['email'],$_POST['password'],$_POST['remeber'] );
+     if ($user){
+         $_SESSION['flash']['success']="Vous êtes bien connecté";
+         header('Location: account.php');
+     }else{
+         $_SESSION['flash']['danger']="Email ou mot de passe incorrect";
+     }
+ }
 ?>
 <?php require 'inc/header.php'; ?>
 <form action="" method="POST" class="form-horizontal">

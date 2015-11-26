@@ -1,7 +1,7 @@
 <?php 
 require 'inc/bootstrap.php';
-$auth = new Auth;
-$auth->restrict(Session::getInstance());
+App::getAuth()->restrict();
+
 
 if(!empty($_POST)){
     if(empty($_POST) || $_POST['password'] != $_POST['passwordConfirm']){

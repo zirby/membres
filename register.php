@@ -19,8 +19,7 @@ if(!empty($_POST)){
 
     if ($validator->isValid()){
         
-        $auth = new Auth();
-        $auth->register($db, $_POST['username'], $_POST['lastname'], $_POST['firstname'], $_POST['email'], $_POST['password']);
+        App::getAuth()->register($db, $_POST['username'], $_POST['lastname'], $_POST['firstname'], $_POST['email'], $_POST['password']);
         Session::getInstance()->setFlash('success', "Un e-mail de confirmation vous a été envoyé");
         
         App::redirect('login.php');
