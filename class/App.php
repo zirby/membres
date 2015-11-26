@@ -18,8 +18,7 @@ class App{
 
 
     static function redirect($page){
-        header("location: $page");
-        exit();
+        header("Location:$page");
     }
     
 }

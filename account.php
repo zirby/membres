@@ -1,8 +1,9 @@
 <?php 
 require 'inc/bootstrap.php';
-App::getAuth()->restrict();
+$auth = App::getAuth();
+$auth->restrict();
 
-
+/*
 if(!empty($_POST)){
     if(empty($_POST) || $_POST['password'] != $_POST['passwordConfirm']){
         $_SESSION['flash']['danger'] = "les mot de passe ne sont pas identique";
@@ -15,7 +16,7 @@ if(!empty($_POST)){
         $_SESSION['flash']['success'] = "le mot de passe à bien été mis a jour";
     }
 }
-
+*/
 
 ?>
 
@@ -23,7 +24,7 @@ if(!empty($_POST)){
 
 
 
-<h2>Bonjour <?= $_SESSION['auth']->firstname; ?> <?= strtoupper($_SESSION['auth']->lastname); ?></h2>
+<h2>Bonjour <?= $auth()->user->firstname; ?> <?= strtoupper($auth()->user->lastname); ?></h2>
 
 <form action="" method="POST" class="form-horizontal">
   <fieldset>

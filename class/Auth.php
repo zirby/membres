@@ -31,11 +31,11 @@ class Auth {
         mail($email, 'Confirmation de votre compte', "Afin de valider votre compte merci de cliquer sur ce lien\n\nhttp://localhost/coupe_davis_2016/confirm.php?id={$user_id}&token=$token");    
     }
     public function confirm ($db, $user_id, $token){
-        $user = $db->query("SELECT * FROM zed_users WHERE id = ?", $user_id)->fetch();
+        $user = $db->query("SELECT * FROM zed_users WHERE id = ?", array($user_id))->fetch();
 
         if($user && $user->confirmation_token == $token){
 
-            $db->query("UPDATE zed_users SET confirmation_token = NULL, confirmed_at = NOW() WHERE id = ? ", $user_id);
+            $db->query("UPDATE zed_users SET confirmation_token = NULL, confirmed_at = NOW() WHERE id = ? ", array($user_id));
             $this->session->write('auth',$user);
             return true;
         }else{
@@ -67,7 +67,7 @@ class Auth {
             $remember_token = $_COOKIE['remember'];
             $parts =  explode("==", $remember_token);
             $user_id = $parts[0];
-            $user = $db->query("SELECT * FROM zed_users WHERE id=?",$user_id )->fetch();
+            $user = $db->query("SELECT * FROM zed_users WHERE id=?",array($user_id) )->fetch();
             if($user){
                 $expected = $user->id . '==' . $remember_token . sha1($user->id . 'totoestgrand');
                 if ($expected == $remember_token){
@@ -83,18 +83,28 @@ class Auth {
     }
     
     public function login($db, $email, $password, $remember = false){
-        $user = $db->query("SELECT * FROM zed_users WHERE email = ?",$email )->fetch();
+        $user = $db->query("SELECT * FROM zed_users WHERE email = ?",array($email) )->fetch();
+        //var_dump($user);
+        //die();
+        //return $user; 
         if($user && password_verify($password, $user->password)){
             $this->connect($user);
-            if($_POST['remember']){
-                $remember_token = str_random(250);
-                $db->query("UPDATE zed_users SET remember_token = ? WHERE id = ?", array($remember_token, $user->id));
-                setcookie('remember', $user->id . '==' . $remember_token . sha1($user->id . 'totoestgrand'), time() + 60 * 60* 24*7);
+            if($remember){
+                $this->remember($db, $user->id);
             }
-            return true;   
+            return $user;   
         }else{
             return false;
         }
+    }
+    public function remember($db, $user_id) {
+        $remember_token = Str::random(250);
+        $db->query("UPDATE zed_users SET remember_token = ? WHERE id = ?", array($remember_token, $user_id));
+        setcookie('remember', $user_id . '==' . $remember_token . sha1($user_id . 'totoestgrand'), time() + 60 * 60* 24*7);
+    }
+    
+    public function logout() {
+        $this->session->delete('auth');
     }
 }
  

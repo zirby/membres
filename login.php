@@ -9,12 +9,14 @@ if($auth->user()){
 }
 
  if(!empty($_POST) && !empty($_POST['email']) && !empty($_POST['password'])){
-     $user = $auth->login($db, $_POST['email'],$_POST['password'],$_POST['remeber'] );
+
+     $user = $auth->login($db, $_POST['email'],$_POST['password'] );
+     $session = Session::getInstance();
      if ($user){
-         $_SESSION['flash']['success']="Vous êtes bien connecté";
-         header('Location: account.php');
+         $session->setFlash('success',"Vous êtes bien connecté");
+         App::redirect('account.php');
      }else{
-         $_SESSION['flash']['danger']="Email ou mot de passe incorrect";
+         $session->setFlash('danger',"Email ou mot de passe incorrect, zut :-(");
      }
  }
 ?>
